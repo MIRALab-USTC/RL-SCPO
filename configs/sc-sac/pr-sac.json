@@ -1,0 +1,51 @@
+{
+    "base_config_name": "default",
+    "policies": [
+        {
+            "name": "protagonist",
+            "class": "GaussianPolicy",
+            "kwargs": {
+                "env": "$expl_env",
+                "hidden_layer": [256,256],
+                "activation": "relu"
+            }
+        },
+        {
+            "name": "adversary",
+            "class": "DeterministicPolicyWithNoise",
+            "kwargs": {
+                "env": "$expl_env",
+                "use_target": false,
+                "hidden_layer": [256,256],
+                "activation": "relu"
+            }
+        },
+
+        {
+            "name": "policy",
+            "class": "PRPolicy",
+            "kwargs": {
+                "protagonist": "$protagonist",
+                "adversary": "$adversary",
+                "epsilon": 0.05
+            }
+        },
+        {
+            "name": "eval_policy",
+            "class": "MakeDeterministic",
+            "kwargs":{
+                "policy": "$policy"
+            }
+        }
+    ],
+    "trainers":{
+        "name": "trainer",
+        "class": "PRSACTrainer",
+        "kwargs": {
+            "env": "$expl_env",
+            "policy": "$policy",
+            "qf": "$qf",
+            "adversary_update_period": 11
+        }
+    }
+}

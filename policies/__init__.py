@@ -1,0 +1,5 @@
+from policies.gaussian_policy import GaussianPolicy
+from policies.simple_policies import UniformlyRandomPolicy
+from policies.make_deterministic import MakeDeterministic
+from policies.deterministic_policy_with_noise import DeterministicPolicyWithNoise
+from policies.pr_policy import PRPolicy

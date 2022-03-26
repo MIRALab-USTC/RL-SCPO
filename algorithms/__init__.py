@@ -1,0 +1,1 @@
+from algorithms.batch_algorithm import BatchAlgorithm

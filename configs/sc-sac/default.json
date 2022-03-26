@@ -1,0 +1,100 @@
+{
+    "experiment":{
+        "base_log_dir": "test",
+        "visdom_port": 8097,
+        "silent": false
+    },
+    "algorithm": {
+        "name": "batch_algorithm",
+        "class": "BatchAlgorithm",
+        "kwargs": {
+            "num_epochs": 1000,
+            "batch_size": 256,
+            "min_num_steps_before_training": 5000,
+            "need_snapshot_list": ["policy", "qf"],
+            "num_eval_steps_per_epoch": [8000]
+        }
+    },
+    "environments": [
+        {
+            "name": "expl_env",
+            "class": "SimpleEnv",
+            "kwargs": {
+                "env_name": "Hopper-v2",
+                "state_scale_from_data": true
+            }
+        },
+        {
+            "name": "eval_env_0",
+            "class": "NormalizedVectorEnv",
+            "kwargs": {
+                "env_name": "Hopper-v2",
+                "n_env":8,
+                "asynchronous": true
+            }
+        }
+    ],
+    "policies": [
+        {
+            "name": "policy",
+            "class": "GaussianPolicy",
+            "kwargs": {
+                "env": "$expl_env",
+                "hidden_layer": [256,256],
+                "activation": "relu"
+            }
+        },
+        {
+            "name": "eval_policy",
+            "class": "MakeDeterministic",
+            "kwargs":{
+                "policy": "$policy"
+            }
+        }
+    ],
+    "value_functions": {
+        "name": "qf",
+        "class": "EnsembleQValue",
+        "kwargs": {
+            "env": "$expl_env",
+            "ensemble_size":2,
+            "hidden_layer": [256,256],
+            "activation": "relu"
+        } 
+    },
+    "trainers":{
+        "name": "trainer",
+        "class": "SCSACTrainer",
+        "kwargs": {
+            "env": "$expl_env",
+            "policy": "$policy",
+            "qf": "$qf",
+            "state_noise": 0.005
+        }
+    },
+    "replay_pools": {
+        "name": "pool",
+        "class": "SimpleReplayPool",
+        "kwargs": {
+            "env": "$expl_env"
+        }
+    },
+    "collectors": [
+        {
+            "name": "expl_collector",
+            "class": "StepCollector",
+            "kwargs": {
+                "env": "$expl_env",
+                "policy": "$policy"
+            }
+        },
+        {
+            "name": "eval_collector_0",
+            "class": "PathCollector",
+            "kwargs": {
+                "env": "$eval_env_0",
+                "policy": "$eval_policy"
+            }
+        }
+    ]
+}

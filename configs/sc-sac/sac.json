@@ -1,0 +1,12 @@
+{
+    "base_config_name": "default",
+    "trainers":{
+        "name": "trainer",
+        "class": "SACTrainer",
+        "kwargs": {
+            "env": "$expl_env",
+            "policy": "$policy",
+            "qf": "$qf"
+        }
+    }
+}
